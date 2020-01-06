@@ -32,7 +32,9 @@
 </template>
 
 <script>
-// import { log } from 'util';
+// gt.js 文件本身没有做导出，所以可以直接导入，此时系统新增一个全局变量initGeeTest
+import './gt'
+
 export default {
   data () {
     // 声明局部函数，实现校验：
@@ -53,7 +55,7 @@ export default {
     return {
       LoginForm: {
         mobile: '',
-        code: '',
+        code: '246810',
         xieyi: true
       },
       // 表单校验
@@ -93,35 +95,82 @@ export default {
         if (!valid) {
           return false // 校验失败 代码停止
         }
-
+        // A. 人机交互验证
+        // axios获得极验的秘钥信息
         let pro = this.$http({
-          url: '/mp/v1_0/authorizations',
-          method: 'POST',
-          data: this.LoginForm
-          // {
-          //   mobile: 18040570831,
-          //   code: 123456
-          // }
+          url: '/mp/v1_0/captchas/' + this.LoginForm.mobile,
+          method: 'get'
         })
         pro
           .then(result => {
-            console.log(result)
+            // console.log(result) // 极验的秘钥信息
 
-            // 客户端记录服务端返回的秘钥：
-            window.sessionStorage.setItem(
-              'userinfo',
-              JSON.stringify(result.data.data)
+            // 从result里边解构下述的data对象出来(对象结构赋值)
+            let { data } = result.data
+            // 请检测data的数据结构， 保证data.gt, data.challenge, data.success有值
+            window.initGeetest(
+              {
+                // 以下配置参数来自服务端 SDK
+                gt: data.gt,
+                challenge: data.challenge,
+                offline: !data.success,
+                new_captcha: true,
+                product: 'bind' // 设置验证窗口样式的
+              },
+              captchaObj => {
+                // 这里可以调用验证实例 captchaObj 的实例方法
+                captchaObj
+                  .onReady(() => {
+                    // 验证码ready之后才能调用verify方法显示验证码(可以显示窗口了)
+                    captchaObj.verify() // 显示验证码窗口
+                  })
+                  .onSuccess(() => {
+                    // 行为校验正确的处理
+                    // B. 验证账号，登录系统
+                    this.submitAt()
+                  })
+                  .onError(() => {
+                    // 行为校验错误的处理
+                  })
+              }
             )
-            this.$router.push('/home')
           })
-          .catch(error => {
-            // console.log('手机号码或验证码错误' + error)
-            // Element 弹出方法
-            this.$message.error('手机号码或验证码错误' + error)
+          .catch(err => {
+            return this.$message.error('获取极验秘钥失败：' + err)
           })
-        // this.$router.push('/home')
-        // this.$router.push({ name: 'home' })  // name属性实现编程导航
+        // B.验证账号，登录系统：
+        // this.submitAt()
       })
+    },
+    // 账号真实性校验，单独拿出来：
+    submitAt () {
+      let pro = this.$http({
+        url: '/mp/v1_0/authorizations',
+        method: 'POST',
+        data: this.LoginForm
+        // {
+        //   mobile: 18040570831,
+        //   code: 123456
+        // }
+      })
+      pro
+        .then(result => {
+          // console.log(result)
+
+          // 客户端记录服务端返回的秘钥：
+          window.sessionStorage.setItem(
+            'userinfo',
+            JSON.stringify(result.data.data)
+          )
+          this.$router.push('/home')
+        })
+        .catch(error => {
+          // console.log('手机号码或验证码错误' + error)
+          // Element 弹出方法
+          this.$message.error('手机号码或验证码错误' + error)
+        })
+      // this.$router.push('/home')
+      // this.$router.push({ name: 'home' })  // name属性实现编程导航
     }
   }
 }
