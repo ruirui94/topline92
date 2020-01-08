@@ -24,7 +24,13 @@
           </span>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit" style="width:100%">登录</el-button>
+          <el-button
+            type="primary"
+            @click="onSubmit"
+            style="width:100%"
+            :disabled="isLoading"
+            :loading="isLoading"
+          >登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -33,7 +39,7 @@
 
 <script>
 // gt.js 文件本身没有做导出，所以可以直接导入，此时系统新增一个全局变量initGeeTest
-import './gt'
+import './gt';
 
 export default {
   data () {
@@ -51,8 +57,10 @@ export default {
       // }
       // 三元表达式 优化：
       value ? callback() : callback(new Error('请遵守协议'))
-    }
+    };
     return {
+      capObj: null,
+      isLoading: false,
       LoginForm: {
         mobile: '',
         code: '246810',
@@ -95,6 +103,12 @@ export default {
         if (!valid) {
           return false // 校验失败 代码停止
         }
+        // 检验极验窗口是否存在：
+        if (this.capObj !== null) {
+          return this.capObj.verify()
+        }
+        // 设置按钮状态：
+        this.isLoading = true
         // A. 人机交互验证
         // axios获得极验的秘钥信息
         let pro = this.$http({
@@ -123,6 +137,8 @@ export default {
                   .onReady(() => {
                     // 验证码ready之后才能调用verify方法显示验证码(可以显示窗口了)
                     captchaObj.verify() // 显示验证码窗口
+                    this.capObj = captchaObj
+                    this.isLoading = false
                   })
                   .onSuccess(() => {
                     // 行为校验正确的处理
