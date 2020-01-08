@@ -4,15 +4,17 @@
       <!-- default-active="2"
       class="el-menu-vertical-demo"
       @open="handleOpen"
-      @close="handleClose"-->
+      @close="handleClose"
+      router ：开启路由模式 true-->
       <el-menu
         background-color="#353B4E"
-        text-color="#fff"
+        text-color="#ccc"
         active-text-color="#3C9DFF"
         :collapse="isCollapse"
         :collapse-transition="false"
+        :router="true"
       >
-        <el-menu-item index="1" :style="{width:isCollapse?'65px':'200px'}">
+        <el-menu-item index="/welcome" :style="{width:isCollapse?'65px':'200px'}">
           <!-- disabled 未激活的导航菜单 -->
           <i class="el-icon-location"></i>
           <span slot="title">首页</span>
@@ -24,7 +26,7 @@
             <span>内容管理</span>
           </template>
           <el-menu-item index="2-1">发布文章</el-menu-item>
-          <el-menu-item index="2-2">内容管理</el-menu-item>
+          <el-menu-item index="/article">内容列表</el-menu-item>
           <el-menu-item index="2-3">评论列表</el-menu-item>
           <el-menu-item index="2-4">素材管理</el-menu-item>
         </el-submenu>
@@ -65,12 +67,16 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>个人信息</el-dropdown-item>
               <el-dropdown-item>github地址</el-dropdown-item>
-              <el-dropdown-item>退出</el-dropdown-item>
+              <el-dropdown-item @click.native="logout()">退出</el-dropdown-item>
+              <!-- 为啥加native ：使得组件的事件直接作用到HTML标签上（给组件添加事件） -->
             </el-dropdown-menu>
           </el-dropdown>
         </div>
       </el-header>
-      <el-main>Main</el-main>
+      <el-main>
+        <!-- 子组件显示占位符 -->
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -80,6 +86,21 @@ export default {
   data () {
     return {
       isCollapse: false // false:展开   true:折叠
+    }
+  },
+  methods: {
+    // 退出系统
+    logout () {
+      this.$confirm('确定要提出系统?', '退出', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          window.sessionStorage.clear()
+          this.$router.push('/login')
+        })
+        .catch(() => {})
     }
   },
   computed: {
@@ -98,6 +119,9 @@ export default {
 <style lang="less" scoped>
 .el-container {
   height: 100%;
+  .el-main {
+    background-color: rgba(204, 204, 204, 0.39);
+  }
   .el-aside {
     background-color: rgb(50, 55, 69);
   }

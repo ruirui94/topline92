@@ -9,7 +9,18 @@ const routes = [
   // name 属性作用：编程式导航使用
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'login', component: () => import('@/views/login') },
-  { path: '/home', name: 'home', component: () => import('@/views/home') }
+  {
+    path: '/home',
+    name: 'home',
+    component: () => import('@/views/home'),
+    redirect: '/welcome', // 路由重定向
+    children: [
+      { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
+      { path: '/article', name: 'article', component: () => import('@/views/article') }
+    ]
+  }
+  // 导入欢迎页面 路由：
+
 ]
 
 const router = new VueRouter({
