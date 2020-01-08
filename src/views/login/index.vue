@@ -7,10 +7,16 @@
         <!-- prop使得校验规则可以找到当前目录进行匹配校验 -->
         <!-- 值就是当前校验的名称 -->
         <el-form-item prop="mobile">
-          <el-input v-model="LoginForm.mobile" placeholder="请输入手机号码："></el-input>
+          <el-input v-model="LoginForm.mobile" placeholder="请输入手机号码：">
+            <!-- <i slot="prefix" class="el-input__icon el-icon-mobile"></i> -->
+            <i slot="prefix" class="iconfont icon-icon-test"></i>
+          </el-input>
         </el-form-item>
         <el-form-item prop="code">
-          <el-input v-model="LoginForm.code" placeholder="请输入验证码："></el-input>
+          <el-input v-model="LoginForm.code" placeholder="请输入验证码：">
+            <!-- <i slot="prefix" class="el-input__icon el-icon-mobile"></i> -->
+            <i slot="prefix" class="iconfont icon-icon_verification"></i>
+          </el-input>
         </el-form-item>
         <!-- 自定义校验： xieyi-->
         <el-form-item prop="xieyi">
@@ -39,7 +45,9 @@
 
 <script>
 // gt.js 文件本身没有做导出，所以可以直接导入，此时系统新增一个全局变量initGeeTest
-import './gt';
+import './gt'
+// 导入 iconfont文件：
+import '@/assets/font/iconfont.css'
 
 export default {
   data () {
@@ -57,7 +65,7 @@ export default {
       // }
       // 三元表达式 优化：
       value ? callback() : callback(new Error('请遵守协议'))
-    };
+    }
     return {
       capObj: null,
       isLoading: false,
