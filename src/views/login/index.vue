@@ -50,6 +50,7 @@ import './gt'
 import '@/assets/font/iconfont.css'
 
 export default {
+  name: 'login',
   data () {
     // 声明局部函数，实现校验：
     var xieyiTest = function (rule, value, callback) {

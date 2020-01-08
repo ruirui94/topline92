@@ -83,6 +83,7 @@
 
 <script>
 export default {
+  name: 'home',
   data () {
     return {
       isCollapse: false // false:展开   true:折叠
